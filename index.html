@@ -173,7 +173,7 @@
 	  const timerElement = document.getElementById('timer');
 	  timerInterval = setInterval(() => {
         timerDuration--;
-        timerElement.textContent = 00:${timerDuration < 10 ? '0' : ''}${timerDuration};
+        timerElement.textContent = Time left: 00:${timerDuration < 10 ? '0' : ''}${timerDuration};
 
         if (timerDuration <= 0) {
             clearInterval(timerInterval);
