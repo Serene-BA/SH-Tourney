@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blue Archive BO3 Draft</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap');
+    body { font-family: 'Rajdhani', sans-serif; background: #0b0f19; color: #e2e8f0; }
+    .font-orbitron { font-family: 'Orbitron', sans-serif; }
+    .glow-blue { box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); border-color: #00f3ff; }
+    .glow-red { box-shadow: 0 0 15px rgba(255, 42, 95, 0.3); border-color: #ff2a5f; }
+    .glow-yellow { box-shadow: 0 0 15px rgba(250, 204, 21, 0.4); border-color: #facc15; }
+    .slot-card { transition: all 0.2s ease-in-out; }
+    .slot-card:hover:not(.disabled) { transform: translateY(-3px); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- HEADER -->
+  <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-crosshairs text-cyan-400 text-2xl"></i>
+        <div>
+          <h1 class="font-orbitron text-lg font-black text-white">BLUE ARCHIVE <span class="text-cyan-400">BO3 DRAFT</span></h1>
+          <p class="text-xs text-slate-400">11 Bosses • Terrain Roll • Per-Game Student Bans</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="flex items-center bg-slate-800 p-1 rounded border border-slate-700 text-xs">
+          <span class="px-2 text-slate-400 font-bold">ROLE:</span>
+          <select id="role-select" onchange="changeRole(this.value)" class="bg-slate-900 text-cyan-300 font-bold px-2 py-1 rounded outline-none cursor-pointer">
+            <option value="admin">Admin (Controls & Rolls)</option>
+            <option value="host">Host (Team Blue / 1st Pick)</option>
+            <option value="guest">Guest (Team Red / 2nd Pick)</option>
+            <option value="spectator">Spectator (Read Only)</option>
+          </select>
+        </div>
+        <button onclick="resetDraft()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-3 py-2 rounded border border-slate-700">
+          <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN AREA -->
+  <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 flex flex-col gap-6">
+
+    <!-- TURN STATUS BANNER -->
+    <div id="turn-banner" class="bg-slate-900 border-2 border-cyan-500 rounded-xl p-4 text-center shadow-lg">
+      <div class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-1" id="phase-title">PHASE 1: INITIAL BOSS BANS</div>
+      <div class="font-orbitron text-2xl font-black text-cyan-400" id="turn-label">HOST'S TURN TO BAN A BOSS</div>
+      <div class="text-xs text-slate-400 mt-1" id="turn-subtitle">Select 1 boss from the pool to ban</div>
+    </div>
+
+    <!-- GAME CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      
+      <!-- GAME 1 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-2">
+          <span class="font-orbitron font-bold text-sm text-cyan-400">GAME 1 (HOST PICK)</span>
+          <span class="text-xs bg-slate-800 px-2 py-0.5 rounded text-slate-400">BO3 Match 1</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <div id="g1-boss-slot" class="bg-slate-950 border border-slate-800 rounded p-2 text-center min-h-[90px] flex flex-col items-center justify-center">
+            <span class="text-[10px] text-slate-500 uppercase font-bold">Boss</span>
+            <span class="text-xs font-bold text-slate-400">Pending</span>
+          </div>
+          <div id="g1-terrain-slot" class="bg-slate-950 border border-slate-800 rounded p-2 text-center min-h-[90px] flex flex-col items-center justify-center">
+            <span class="text-[10px] text-slate-500 uppercase font-bold">Terrain</span>
+            <span class="text-xs font-bold text-slate-400">Pending</span>
+          </div>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded p-2">
+          <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Guest Student Bans (3):</div>
+          <div id="g1-bans-container" class="flex gap-1 flex-wrap min-h-[24px]">
+            <span class="text-xs text-slate-600 italic">None yet</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME 2 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-2">
+          <span class="font-orbitron font-bold text-sm text-rose-400">GAME 2 (GUEST PICK)</span>
+          <span class="text-xs bg-slate-800 px-2 py-0.5 rounded text-slate-400">BO3 Match 2</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <div id="g2-boss-slot" class="bg-slate-950 border border-slate-800 rounded p-2 text-center min-h-[90px] flex flex-col items-center justify-center">
+            <span class="text-[10px] text-slate-500 uppercase font-bold">Boss</span>
+            <span class="text-xs font-bold text-slate-400">Pending</span>
+          </div>
+          <div id="g2-terrain-slot" class="bg-slate-950 border border-slate-800 rounded p-2 text-center min-h-[90px] flex flex-col items-center justify-center">
+            <span class="text-[10px] text-slate-500 uppercase font-bold">Terrain</span>
+            <span class="text-xs font-bold text-slate-400">Pending</span>
+          </div>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded p-2">
+          <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Host Student Bans (3):</div>
+          <div id="g2-bans-container" class="flex gap-1 flex-wrap min-h-[24px]">
+            <span class="text-xs text-slate-600 italic">None yet</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME 3 -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-2">
+          <span class="font-orbitron font-bold text-sm text-yellow-400">GAME 3 (DECIDER)</span>
+          <span class="text-xs bg-slate-800 px-2 py-0.5 rounded text-slate-400">BO3 Match 3</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <div id="g3-boss-slot" class="bg-slate-950 border border-slate-800 rounded p-2 text-center min-h-[90px] flex flex-col items-center justify-center">
+            <span class="text-[10px] text-slate-500 uppercase font-bold">Boss</span>
+            <span class="text-xs font-bold text-slate-400">Last Remaining</span>
+          </div>
+          <div id="g3-terrain-slot" class="bg-slate-950 border border-slate-800 rounded p-2 text-center min-h-[90px] flex flex-col items-center justify-center">
+            <span class="text-[10px] text-slate-500 uppercase font-bold">Terrain</span>
+            <span class="text-xs font-bold text-yellow-400/80">Admin Roll</span>
+          </div>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded p-2">
+          <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">Host (2) & Guest (2) Bans:</div>
+          <div id="g3-bans-container" class="flex gap-1 flex-wrap min-h-[24px]">
+            <span class="text-xs text-slate-600 italic">None yet</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SELECTION GRID AREA -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex-1 flex flex-col min-h-[400px]">
+      <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <h2 class="font-orbitron text-sm font-bold text-white uppercase" id="grid-title">SELECTABLE BOSS POOL</h2>
+          <span class="text-xs bg-slate-800 px-2 py-0.5 rounded-full text-slate-400" id="grid-count">11 Available</span>
+        </div>
+
+        <div id="student-search-box" class="hidden flex-1 max-w-xs">
+          <input type="text" id="student-search-input" oninput="filterStudents(this.value)" placeholder="Search student..." class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded px-3 py-1 outline-none">
+        </div>
+
+        <button id="admin-roll-btn" onclick="executeAdminRoll()" class="hidden bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black font-orbitron text-xs px-4 py-2 rounded">
+          <i class="fa-solid fa-dice mr-1"></i> RANDOMIZE DECIDER TERRAIN
+        </button>
+      </div>
+
+      <div id="selection-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 overflow-y-auto max-h-[480px] p-1">
+        <!-- CARDS RENDERED BY JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+	const BOSS_ROSTER = []
+
+    const TERRAIN_ROSTER = [
+      { id: 'urban',  name: 'Urban (Street)', image: 'https://schaledb.com/images/ui/Terrain_Street.png' },
+      { id: 'field',  name: 'Field (Outdoor)', image: 'https://schaledb.com/images/ui/Terrain_Outdoor.png' },
+      { id: 'indoor', name: 'Indoor',          image: 'https://schaledb.com/images/ui/Terrain_Indoor.png' }
+    ];
+
+    const STUDENT_ROSTER = []
+
+    const DRAFT_SEQUENCE = [
+      { team: 'blue', type: 'ban', target: 'boss', label: 'Host Boss Ban 1' },
+      { team: 'red',  type: 'ban', target: 'boss', label: 'Guest Boss Ban 1' },
+      { team: 'blue', type: 'ban', target: 'boss', label: 'Host Boss Ban 2' },
+      { team: 'red',  type: 'ban', target: 'boss', label: 'Guest Boss Ban 2' },
+
+      { team: 'blue', type: 'pick', target: 'boss',    game: 1, label: 'Game 1 Boss (Host Pick)' },
+      { team: 'blue', type: 'pick', target: 'terrain', game: 1, label: 'Game 1 Terrain (Host Pick)' },
+
+      { team: 'red',  type: 'pick', target: 'boss',    game: 2, label: 'Game 2 Boss (Guest Pick)' },
+      { team: 'red',  type: 'pick', target: 'terrain', game: 2, label: 'Game 2 Terrain (Guest Pick)' },
+
+      { team: 'blue', type: 'ban', target: 'boss', label: 'Host Boss Ban 3' },
+      { team: 'red',  type: 'ban', target: 'boss', label: 'Guest Boss Ban 3' },
+      { team: 'blue', type: 'ban', target: 'boss', label: 'Host Boss Ban 4' },
+      { team: 'red',  type: 'ban', target: 'boss', label: 'Guest Boss Ban 4' },
+
+      { team: 'neutral', type: 'decider', target: 'boss',    game: 3, label: 'Game 3 Boss (Decider Auto-Pick)' },
+      { team: 'admin',   type: 'roll',    target: 'terrain', game: 3, label: 'Game 3 Terrain (Admin Randomize)' },
+
+      { team: 'red',  type: 'ban', target: 'student', game: 1, label: 'Game 1 Student Ban 1 (Guest)' },
+      { team: 'red',  type: 'ban', target: 'student', game: 1, label: 'Game 1 Student Ban 2 (Guest)' },
+      { team: 'red',  type: 'ban', target: 'student', game: 1, label: 'Game 1 Student Ban 3 (Guest)' },
+
+      { team: 'blue', type: 'ban', target: 'student', game: 2, label: 'Game 2 Student Ban 1 (Host)' },
+      { team: 'blue', type: 'ban', target: 'student', game: 2, label: 'Game 2 Student Ban 2 (Host)' },
+      { team: 'blue', type: 'ban', target: 'student', game: 2, label: 'Game 2 Student Ban 3 (Host)' },
+
+      { team: 'blue', type: 'ban', target: 'student', game: 3, label: 'Game 3 Student Ban 1 (Host)' },
+      { team: 'blue', type: 'ban', target: 'student', game: 3, label: 'Game 3 Student Ban 2 (Host)' },
+      { team: 'red',  type: 'ban', target: 'student', game: 3, label: 'Game 3 Student Ban 1 (Guest)' },
+      { team: 'red',  type: 'ban', target: 'student', game: 3, label: 'Game 3 Student Ban 2 (Guest)' }
+    ];
+
+    let currentStepIndex = 0;
+    let currentRole = 'admin';
+    let bannedBosses = [];
+    let gameData = {
+      1: { boss: null, terrain: null, studentBans: [] },
+      2: { boss: null, terrain: null, studentBans: [] },
+      3: { boss: null, terrain: null, studentBans: [] }
+    };
+
+    window.onload = function() {
+		raid_boss_promise = fetch("https://schaledb.com/data/en/raids.min.json").then(raid_req => {
+			return raid_req.json()
+		}).then(raiddata_json => {
+			raiddata_json.Raid.forEach(x => BOSS_ROSTER.push({id: x.PathName, name: x.Name, terrains: x.Terrain.map(y => y.toLowerCase()), image: 'https://schaledb.com/images/raid/Boss_Portrait_' + x.DevName + '_Lobby.png'}))
+		})
+		
+		student_promise = fetch("https://schaledb.com/data/en/students.min.json").then(stu_req => {
+			return stu_req.json()
+		}).then(student_data_json => {
+			Object.keys(student_data_json).forEach(x => STUDENT_ROSTER.push({id: x, name: student_data_json[x].Name, image: 'https://schaledb.com/images/student/collection/' + x + '.webp'}))
+		})
+		
+		Promise.all([raid_boss_promise, student_promise]).then(z => {
+			updateDraftState()
+		})
+	};
+
+    function changeRole(r) { currentRole = r; updateDraftState(); }
+
+    function resetDraft() {
+      currentStepIndex = 0;
+      bannedBosses = [];
+      gameData = { 1: { boss: null, terrain: null, studentBans: [] }, 2: { boss: null, terrain: null, studentBans: [] }, 3: { boss: null, terrain: null, studentBans: [] } };
+      updateDraftState();
+    }
+
+    function updateDraftState() {
+      if (currentStepIndex >= DRAFT_SEQUENCE.length) {
+        renderCompleteState();
+        return;
+      }
+
+      const step = DRAFT_SEQUENCE[currentStepIndex];
+
+      if (step.type === 'decider' && step.target === 'boss') {
+        const used = [...bannedBosses, gameData[1].boss?.id, gameData[2].boss?.id].filter(Boolean);
+        const rem = BOSS_ROSTER.find(b => !used.includes(b.id));
+        if (rem) gameData[3].boss = rem;
+        currentStepIndex++;
+        updateDraftState();
+        return;
+      }
+
+      const banner = document.getElementById('turn-banner');
+      document.getElementById('phase-title').innerText = `STEP ${currentStepIndex + 1} OF ${DRAFT_SEQUENCE.length}`;
+      document.getElementById('turn-label').innerText = step.label.toUpperCase();
+
+      if (step.team === 'blue') {
+        banner.className = "bg-slate-900 border-2 border-cyan-500 rounded-xl p-4 text-center glow-blue";
+        document.getElementById('turn-label').className = "font-orbitron text-2xl font-black text-cyan-400";
+      } else if (step.team === 'red') {
+        banner.className = "bg-slate-900 border-2 border-rose-500 rounded-xl p-4 text-center glow-red";
+        document.getElementById('turn-label').className = "font-orbitron text-2xl font-black text-rose-400";
+      } else {
+        banner.className = "bg-slate-900 border-2 border-yellow-500 rounded-xl p-4 text-center glow-yellow";
+        document.getElementById('turn-label').className = "font-orbitron text-2xl font-black text-yellow-400";
+      }
+
+      updateGameCardsUI();
+      renderGridForStep(step);
+    }
+
+    function renderGridForStep(step) {
+      const grid = document.getElementById('selection-grid');
+      const searchBox = document.getElementById('student-search-box');
+      const rollBtn = document.getElementById('admin-roll-btn');
+
+      grid.innerHTML = '';
+      searchBox.classList.add('hidden');
+      rollBtn.classList.add('hidden');
+
+      if (step.target === 'boss') {
+        document.getElementById('grid-title').innerText = "SELECTABLE BOSS POOL";
+        
+        BOSS_ROSTER.forEach(boss => {
+          const isBanned = bannedBosses.includes(boss.id);
+          const isPicked = gameData[1].boss?.id === boss.id || gameData[2].boss?.id === boss.id;
+          const isAvailable = !isBanned && !isPicked;
+
+          const card = document.createElement('div');
+          card.className = `slot-card bg-slate-950 border rounded-xl p-2 text-center relative flex flex-col justify-between items-center ${isAvailable ? 'border-slate-800 hover:border-cyan-400 cursor-pointer' : 'border-slate-900 opacity-30 cursor-not-allowed'}`;
+          
+          card.innerHTML = `
+            <div class="w-full h-16 bg-slate-900 rounded mb-1 overflow-hidden relative">
+              <img src="${boss.image}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' fill=\'%23334155\'><rect width=\'100%\' height=\'100%\'/></svg>';">
+            </div>
+            <span class="font-bold text-xs text-slate-200">${boss.name}</span>
+            <span class="text-[10px] text-slate-500">${boss.terrains.length} Terrains</span>
+            ${isBanned ? '<span class="absolute top-1 right-1 bg-rose-600 text-white text-[8px] font-bold px-1 rounded">BAN</span>' : ''}
+            ${isPicked ? '<span class="absolute top-1 right-1 bg-cyan-600 text-white text-[8px] font-bold px-1 rounded">PICK</span>' : ''}
+          `;
+
+          if (isAvailable && (currentRole === 'admin' || (step.team === 'blue' && currentRole === 'host') || (step.team === 'red' && currentRole === 'guest'))) {
+            card.onclick = function() {
+              if (step.type === 'ban') bannedBosses.push(boss.id);
+              else if (step.type === 'pick') gameData[step.game].boss = boss;
+              currentStepIndex++;
+              updateDraftState();
+            };
+          }
+          grid.appendChild(card);
+        });
+
+      } else if (step.target === 'terrain') {
+        document.getElementById('grid-title').innerText = "SELECT TERRAIN";
+        const activeBoss = gameData[step.game].boss;
+        const allowed = activeBoss ? activeBoss.terrains : ['urban', 'field', 'indoor'];
+
+        if (allowed.length === 1 && step.type !== 'roll') {
+          gameData[step.game].terrain = TERRAIN_ROSTER.find(t => t.id === allowed[0]);
+          currentStepIndex++;
+          updateDraftState();
+          return;
+        }
+
+        if (step.type === 'roll') rollBtn.classList.remove('hidden');
+
+        TERRAIN_ROSTER.forEach(terrain => {
+          const isAllowed = allowed.includes(terrain.id);
+          const card = document.createElement('div');
+          card.className = `slot-card bg-slate-950 border rounded-xl p-2 text-center relative ${isAllowed ? 'border-slate-800 hover:border-amber-400 cursor-pointer' : 'border-slate-900 opacity-20 cursor-not-allowed'}`;
+          card.innerHTML = `
+            <div class="w-full h-12 bg-slate-900 rounded mb-1 overflow-hidden">
+              <img src="${terrain.image}" class="w-full h-full object-contain">
+            </div>
+            <span class="font-bold text-xs text-slate-200">${terrain.name}</span>
+          `;
+
+          if (isAllowed && step.type !== 'roll' && (currentRole === 'admin' || (step.team === 'blue' && currentRole === 'host') || (step.team === 'red' && currentRole === 'guest'))) {
+            card.onclick = function() {
+              gameData[step.game].terrain = terrain;
+              currentStepIndex++;
+              updateDraftState();
+            };
+          }
+          grid.appendChild(card);
+        });
+
+      } else if (step.target === 'student') {
+        document.getElementById('grid-title').innerText = `GAME ${step.game} STUDENT BANS`;
+        searchBox.classList.remove('hidden');
+
+        const activeGameBans = gameData[step.game].studentBans;
+
+        STUDENT_ROSTER.forEach(student => {
+          const isBanned = activeGameBans.some(s => s.id === student.id);
+          const card = document.createElement('div');
+          card.className = `student-card slot-card bg-slate-950 border rounded-xl p-2 text-center relative ${!isBanned ? 'border-slate-800 hover:border-rose-400 cursor-pointer' : 'border-slate-900 opacity-20 cursor-not-allowed'}`;
+          card.setAttribute('data-name', student.name.toLowerCase());
+          card.innerHTML = `
+            <div class="w-12 h-12 bg-slate-800
