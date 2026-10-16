@@ -140,7 +140,10 @@
         <div class="flex items-center gap-2">
           <h2 class="font-orbitron text-sm font-bold text-white uppercase" id="grid-title">SELECTABLE BOSS POOL</h2>
           <span class="text-xs bg-slate-800 px-2 py-0.5 rounded-full text-slate-400" id="grid-count">11 Available</span>
-		  <span class="text-small ms-4 bg-slate-800 px-2 py-0.8 rounded-full text-slate-300" id="timer">Time left:00:30</span>
+		  <span class="font-semibold text-small ms-8 bg-slate-800 px-2 py-0.8 rounded-full text-slate-300" id="timer">Time left: 00:30</span>
+		  <button onclick="startTimer()" class="bg-blue-600 text-white px-4 py-2 rounded">
+    Start Timer
+</button>
         </div>
 
         <div id="student-search-box" class="hidden flex-1 max-w-xs">
@@ -160,6 +163,25 @@
   </main>
 
   <script>
+	//timer function starts here
+	let timerDuration = 30;
+	let timerInterval = null
+
+	function startTimer() {
+	  if (timerInterval) clearInterval(timerInterval);
+	  timerDuration = 30
+	  const timerElement = document.getElementById('timer');
+	  timerInterval = setInterval(() => {
+        timerDuration--;
+        timerElement.textContent = 00:${timerDuration < 10 ? '0' : ''}${timerDuration};
+
+        if (timerDuration <= 0) {
+            clearInterval(timerInterval);
+            alert("Time is up!");
+        }
+    }, 1000);}
+	  
+	  
 	const BOSS_ROSTER = []
 
     const TERRAIN_ROSTER = [
@@ -365,3 +387,6 @@
           card.setAttribute('data-name', student.name.toLowerCase());
           card.innerHTML = `
             <div class="w-12 h-12 bg-slate-800
+
+
+
