@@ -141,7 +141,7 @@
           <h2 class="font-orbitron text-sm font-bold text-white uppercase" id="grid-title">SELECTABLE BOSS POOL</h2>
           <span class="text-xs bg-slate-800 px-2 py-0.5 rounded-full text-slate-400" id="grid-count">11 Available</span>
 		  <span class="font-semibold text-small ms-8 bg-slate-800 px-2 py-0.8 rounded-full text-slate-300" id="timer">Time left: 00:30</span>
-		  <button onclick="startTimer()" class="bg-blue-600 text-white px-4 py-2 rounded">
+		  <button id="startTimer" class="bg-blue-600 text-white px-4 py-2 rounded">
     Start Timer
 </button>
         </div>
@@ -166,6 +166,8 @@
 	//timer function starts here
 let timerDuration = 30;
 let timerInterval = null;
+const startButton = document.getElementById(startTimer)'
+	  
 
 function startTimer() {
   if (timerInterval) clearInterval(timerInterval);
@@ -185,6 +187,8 @@ function startTimer() {
     }
   }, 1000);
 }
+	  startButton.addEventListener('click', startTimer);
+	  
 
 	  
 	  
