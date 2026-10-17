@@ -164,22 +164,28 @@
 
   <script>
 	//timer function starts here
-	let timerDuration = 30;
-	let timerInterval = null
+let timerDuration = 30;
+let timerInterval = null;
 
-	function startTimer() {
-	  if (timerInterval) clearInterval(timerInterval);
-	  timerDuration = 30
-	  const timerElement = document.getElementById('timer');
-	  timerInterval = setInterval(() => {
-        timerDuration--;
-        timerElement.textContent = Time left: 00:${timerDuration < 10 ? '0' : ''}${timerDuration};
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  
+  timerDuration = 30;
+  const timerElement = document.getElementById('timer');
+  timerElement.textContent = `Time left: 00:${timerDuration}`;
 
-        if (timerDuration <= 0) {
-            clearInterval(timerInterval);
-            alert("Time is up!");
-        }
-    }, 1000);}
+  timerInterval = setInterval(() => {
+    timerDuration--;
+    timerElement.textContent = `Time left: 00:${timerDuration < 10 ? '0' : ''}${timerDuration}`;
+
+    if (timerDuration <= 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        alert("Time is up!");
+    }
+  }, 1000);
+}
+
 	  
 	  
 	const BOSS_ROSTER = []
